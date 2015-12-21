@@ -1,22 +1,16 @@
 package org.algorithms
 
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 class PathResolverTest extends FunSuite with Matchers {
 
-    test("it should create a path resolver") {
-        new PathResolver
-    }
+    val pr = PathResolver()
 
     test("default number of house is 1") {
-        val pr = new PathResolver
-
         pr.visitedHouse("") shouldBe 1
     }
 
     test("Visited house should be 2") {
-        val pr = new PathResolver
-
         pr.visitedHouse(">") shouldBe 2
         pr.visitedHouse("<") shouldBe 2
         pr.visitedHouse("^") shouldBe 2
@@ -24,17 +18,13 @@ class PathResolverTest extends FunSuite with Matchers {
     }
 
     test("revisited house should not be taken into account 2") {
-        val pr = new PathResolver
-
         pr.visitedHouse("><") shouldBe 2
         pr.visitedHouse("<>") shouldBe 2
         pr.visitedHouse("^v") shouldBe 2
         pr.visitedHouse("v^") shouldBe 2
     }
 
-    test("Visited house should be 3") {
-        val pr = new PathResolver
-
+    test("number of visited house should be 3") {
         pr.visitedHouse(">>") shouldBe 3
         pr.visitedHouse(">^") shouldBe 3
         pr.visitedHouse(">v") shouldBe 3
@@ -43,9 +33,22 @@ class PathResolverTest extends FunSuite with Matchers {
         pr.visitedHouse("<^") shouldBe 3
         pr.visitedHouse("^>") shouldBe 3
         pr.visitedHouse("^<") shouldBe 3
-        pr.visitedHouse("^v") shouldBe 3
+        pr.visitedHouse("^^") shouldBe 3
         pr.visitedHouse("v>") shouldBe 3
         pr.visitedHouse("v<") shouldBe 3
-        pr.visitedHouse("v^") shouldBe 3
+        pr.visitedHouse("vv") shouldBe 3
+    }
+
+    test("number of visited house should be 4") {
+        pr.visitedHouse("^>v<^") shouldBe 4
+        pr.visitedHouse(">v<^>") shouldBe 4
+        pr.visitedHouse("v<^>v") shouldBe 4
+        pr.visitedHouse("<^>v<") shouldBe 4
+    }
+
+    test("tests from site :)") {
+        pr.visitedHouse(">") shouldBe 2
+        pr.visitedHouse("^>v<") shouldBe 4
+        pr.visitedHouse("^v^v^v^v^v") shouldBe 2
     }
 }
