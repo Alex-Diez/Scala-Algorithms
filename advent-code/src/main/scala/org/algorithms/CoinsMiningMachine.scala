@@ -4,22 +4,24 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 class CoinsMiningMachine {
-    val md = MessageDigest.getInstance("MD5")
 
-    def mine(code: String) = {
-        def hexCodeFor(s: String, n: Int): String = {
-            val data = code + n
-            val dataByte = data.getBytes()
+    private def mine(code: String, zeroPrepend: Int): Int = {
+        def mine(code: String, zeroPrepend: Int, next: Int, md: MessageDigest): Int = {
             md.reset()
-            md.update(dataByte)
-            val b = new BigInteger(1, md.digest)
-            b.toString(16)
+            md.update((code + next).getBytes)
+            if (new BigInteger(1, md.digest).toString(16).length != 32 - zeroPrepend)
+                mine(code, zeroPrepend, next+ 1, md)
+            else next
         }
-        var iter = 1
-        while (hexCodeFor(code, iter).length != 27) {
-            iter += 1
-        }
-        iter
+        mine(code, zeroPrepend, 1, MessageDigest.getInstance("MD5"))
+    }
+
+    def mine(code: String): Int = {
+        mine(code, 5)
+    }
+
+    def mineHard(code: String):Int = {
+        mine(code, 6)
     }
 }
 
@@ -27,6 +29,8 @@ object CoinsMiningMachine {
     def apply() = new CoinsMiningMachine
 
     def main(args: Array[String]): Unit = {
-        println(CoinsMiningMachine().mine("yzbqklnj"))
+        val machine = CoinsMiningMachine()
+        println(machine.mine("yzbqklnj"))
+        println(machine.mineHard("yzbqklnj"))
     }
 }
