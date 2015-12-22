@@ -3,32 +3,45 @@ package org.algorithms
 import org.scalatest.{FunSuite, Matchers}
 
 class FloorsCalculatorTest extends FunSuite with Matchers {
+    
+    val calc = FloorsCalculator()
 
     test("evaluate first floor") {
-        FloorsCalculator("(").evaluate shouldBe 1
-        FloorsCalculator("()(").evaluate shouldBe 1
-        FloorsCalculator("()()(").evaluate shouldBe 1
+        calc.floorNumber("(") shouldBe 1
+        calc.floorNumber("()(") shouldBe 1
+        calc.floorNumber("()()(") shouldBe 1
     }
 
     test("evaluate ten floor") {
-        FloorsCalculator("(((((((" +
-                "(((").evaluate shouldBe 10
-        FloorsCalculator("()(((((((" +
-                "(((").evaluate shouldBe 10
-        FloorsCalculator("()()" +
-                "((((((((((").evaluate shouldBe 10
+        calc.floorNumber("(((((((" +
+                "(((") shouldBe 10
+        calc.floorNumber("()(((((((" +
+                "(((") shouldBe 10
+        calc.floorNumber("()()" +
+                "((((((((((") shouldBe 10
 
     }
 
     test("test from site :)") {
-        FloorsCalculator("(())").evaluate shouldBe 0
-        FloorsCalculator("()()").evaluate shouldBe 0
-        FloorsCalculator("(((").evaluate shouldBe 3
-        FloorsCalculator("(()(()(").evaluate shouldBe 3
-        FloorsCalculator("))(((((").evaluate shouldBe 3
-        FloorsCalculator("())").evaluate shouldBe -1
-        FloorsCalculator("))(").evaluate shouldBe -1
-        FloorsCalculator(")))").evaluate shouldBe -3
-        FloorsCalculator(")())())").evaluate shouldBe -3
+        calc.floorNumber("(())") shouldBe 0
+        calc.floorNumber("()()") shouldBe 0
+        calc.floorNumber("(((") shouldBe 3
+        calc.floorNumber("(()(()(") shouldBe 3
+        calc.floorNumber("))(((((") shouldBe 3
+        calc.floorNumber("())") shouldBe -1
+        calc.floorNumber("))(") shouldBe -1
+        calc.floorNumber(")))") shouldBe -3
+        calc.floorNumber(")())())") shouldBe -3
+
+        calc.basementIndex(")") shouldBe 1
+        calc.basementIndex("()())") shouldBe 5
+    }
+
+    test("basement index should be 1") {
+        calc.basementIndex(")") shouldBe 1
+    }
+
+    test("basement index should be 3") {
+        calc.basementIndex("())") shouldBe 3
     }
 }
