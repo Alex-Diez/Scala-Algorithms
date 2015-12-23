@@ -25,4 +25,20 @@ class StringsTypeResolverTest extends FunSuite with Matchers {
     test("string 'dvszwmarrgswjxmb' should not be nice") {
         str.isNice("dvszwmarrgswjxmb") shouldBe false
     }
+
+    test("string 'qjhvhtzxzqqjkmpb' is super nice") {
+        str.isSuperNice("qjhvhtzxzqqjkmpb") shouldBe true
+    }
+
+    test("string 'xxyxx' is super nice") {
+        str.isSuperNice("xxyxx") shouldBe true
+    }
+
+    test("string 'uurcxstgmygtbstg' is super nice") {
+        str.isSuperNice("uurcxstgmygtbstg") shouldBe false
+    }
+
+    test("string 'ieodomkazucvgmuy' is super nice") {
+        str.isSuperNice("ieodomkazucvgmuy") shouldBe false
+    }
 }
