@@ -47,13 +47,12 @@ class WiresConnectionManager {
 
     private def addSource(string: String) = {
         val parts = string.split(" -> ")
-        if (digs.forall(c => parts.contains(c))) signals = signals + (parts(1) -> noOperationFunction(parts(0).toInt))
+        if (digs.exists(c => parts(0).contains(c))) signals = signals + (parts(1) -> noOperationFunction(parts(0).toInt))
         else signals = signals + (parts(1) -> signals.getOrElse(parts(0), defaultOperation()))
     }
 
     def input(string: String) = {
-        println(string)
-        if (ops.forall(op => !string.contains(op))) addSource(string)
+        if (!ops.exists(op => string.contains(op))) addSource(string)
         else connect(string)
     }
 
