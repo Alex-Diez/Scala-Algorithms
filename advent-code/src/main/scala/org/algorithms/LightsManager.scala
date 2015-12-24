@@ -52,15 +52,7 @@ object LightsManager {
                 else if(command.equals("turnOff")) lm.turnOff(datas(0), datas(1), datas(2), datas(3))
                 else lm.toggle(datas(0), datas(1), datas(2), datas(3))
             })
-            var count = 0
-            for(i <- lm.lights.indices) {
-                for(j <- lm.lights(i).indices) {
-                    if(lm.lights(i)(j) != 0) {
-                        count += 1
-                    }
-                }
-            }
-            println(count)
+            println(lm.lights.map(a => a.sum).sum)
         }
         {
             val lm = LightsManager(1000, 1000)
@@ -72,13 +64,7 @@ object LightsManager {
                 else if(command.equals("turnOff")) lm.turnBrightOff(datas(0), datas(1), datas(2), datas(3))
                 else lm.toggleBright(datas(0), datas(1), datas(2), datas(3))
             })
-            var count = 0
-            for(i <- lm.lights.indices) {
-                for(j <- lm.lights(i).indices) {
-                    count += lm.lights(i)(j)
-                }
-            }
-            println(count)
+            println(lm.lights.map(a => a.sum).sum)
         }
     }
 }
