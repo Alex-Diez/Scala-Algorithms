@@ -59,7 +59,7 @@ class WiresConnectionManagerTest extends FunSuite with Matchers {
     }
 
     test("complex computation") {
-        wcm.input("x LSHIFT 2 -> f")
+        wcm.input("x OR 0 -> f")
         wcm.input("123 -> x")
         wcm.input("456 -> y")
         wcm.input("x AND y -> d")
@@ -70,7 +70,7 @@ class WiresConnectionManagerTest extends FunSuite with Matchers {
 
         wcm.signalOn("d") shouldBe 72
         wcm.signalOn("e") shouldBe 507
-        wcm.signalOn("f") shouldBe 492
+        wcm.signalOn("f") shouldBe 0
         wcm.signalOn("g") shouldBe 114
         wcm.signalOn("h") shouldBe 65412
         wcm.signalOn("i") shouldBe 65079

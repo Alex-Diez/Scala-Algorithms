@@ -12,21 +12,21 @@ class WiresConnectionManager {
     private def noOperationFunction(value: Int): () => Int = () => value
 
     private def andOperationOnWires(w1: String, w2: String): () => Int =
-        () => ((execWireFunc(w1) & execWireFunc(w2)) << 16) >> 16
+        () => ((wireFunc(w1)() & wireFunc(w2)()) << 16) >> 16
 
     private def orOperationOnWires(w1: String, w2: String): () => Int =
-        () => ((execWireFunc(w1) | execWireFunc(w2)) << 16) >> 16
+        () => ((wireFunc(w1)() | wireFunc(w2)()) << 16) >> 16
 
     private def lShiftOnWires(w1: String, shiftFactor: Int): () => Int =
-        () => ((execWireFunc(w1) << shiftFactor) << 16) >> 16
+        () => ((wireFunc(w1)() << shiftFactor) << 16) >> 16
 
     private def rShiftOnWires(w1: String, shiftFactor: Int): () => Int =
-        () => ((execWireFunc(w1) >> shiftFactor) << 16) >> 16
+        () => ((wireFunc(w1)() >> shiftFactor) << 16) >> 16
 
     private def notOperationOnWires(wire: String): () => Int =
-        () =>  ~execWireFunc(wire) & 65535
+        () =>  ~wireFunc(wire)() & 65535
 
-    private def execWireFunc(wire: String): Int = signals.getOrElse(wire, defaultOperation())()
+    private def wireFunc(wire: String): () => Int = signals.getOrElse(wire, defaultOperation())
 
     private def connect(string: String) = {
         val parts = string.split(" -> ")
@@ -56,7 +56,7 @@ class WiresConnectionManager {
         else connect(string)
     }
 
-    def signalOn(wire: String): Int = execWireFunc(wire)
+    def signalOn(wire: String): Int = wireFunc(wire)()
 }
 
 object WiresConnectionManager {
