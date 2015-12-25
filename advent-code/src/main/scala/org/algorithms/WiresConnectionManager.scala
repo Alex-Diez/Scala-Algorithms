@@ -7,7 +7,7 @@ class WiresConnectionManager {
     var signals = Map[String, String]()
     var values = mutable.Map[String, Int]()
 
-    private def parseArg(arg: String, index:Int): Int = {
+    private def parseArg(arg: String): Int = {
         if(arg.matches("[\\d]+")) arg.toInt else signalOn(arg)
     }
 
@@ -16,14 +16,14 @@ class WiresConnectionManager {
         signals = signals + (parts(1) -> parts(0))
     }
 
-    private def signalOn(wire: String, index: Int): Int = {
+    def signalOn(wire: String): Int = {
         def analyseExpr(expr: String): Int = {
-            if(expr.contains("AND")) evalExpr(expr, "AND", (fArg: String, sArg: String) => parseArg(fArg, index) & parseArg(sArg, index))
-            else if(expr.contains("OR")) evalExpr(expr, "OR", (fArg: String, sArg: String) => parseArg(fArg, index) | parseArg(sArg, index))
-            else if(expr.contains("LSHIFT")) evalExpr(expr, "LSHIFT", (fArg: String, sArg: String) => parseArg(fArg, index) << parseArg(sArg, index))
-            else if(expr.contains("RSHIFT")) evalExpr(expr, "RSHIFT", (fArg: String, sArg: String) => parseArg(fArg, index) >> parseArg(sArg, index))
-            else if(expr.contains("NOT")) ~parseArg(expr.substring(4), index)
-            else parseArg(expr, index)
+            if(expr.contains("AND")) evalExpr(expr, "AND", (fArg: String, sArg: String) => parseArg(fArg) & parseArg(sArg))
+            else if(expr.contains("OR")) evalExpr(expr, "OR", (fArg: String, sArg: String) => parseArg(fArg) | parseArg(sArg))
+            else if(expr.contains("LSHIFT")) evalExpr(expr, "LSHIFT", (fArg: String, sArg: String) => parseArg(fArg) << parseArg(sArg))
+            else if(expr.contains("RSHIFT")) evalExpr(expr, "RSHIFT", (fArg: String, sArg: String) => parseArg(fArg) >> parseArg(sArg))
+            else if(expr.contains("NOT")) ~parseArg(expr.substring(4))
+            else parseArg(expr)
         }
         def evalExpr(expr: String, op: String, func: (String, String) => Int): Int = {
             val exprs = expr.split(" " + op + " ")
@@ -33,11 +33,6 @@ class WiresConnectionManager {
             case Some(expr) => values.getOrElseUpdate(wire, analyseExpr(expr) & 65535)
             case None => -1
         }
-
-    }
-
-    def signalOn(wire: String): Int = {
-        signalOn(wire, 0)
     }
 }
 
