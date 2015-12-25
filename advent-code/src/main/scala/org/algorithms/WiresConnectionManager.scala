@@ -46,6 +46,10 @@ object WiresConnectionManager {
     def main(args: Array[String]) = {
         val wcm = new WiresConnectionManager
         fromFile("advent-code/src/main/resources/bitwise").getLines().foreach(l => wcm.input(l))
+        val on: Int = wcm.signalOn("a")
+        println(on)
+        wcm.values.clear()
+        wcm.values.put("b", on)
         println(wcm.signalOn("a"))
     }
 }
