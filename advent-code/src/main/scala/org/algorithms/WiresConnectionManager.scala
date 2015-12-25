@@ -1,62 +1,44 @@
 package org.algorithms
 
 import scala.io.Source._
+import scala.collection.mutable
 
 class WiresConnectionManager {
-    val ops = Set("AND", "OR", "NOT", "LSHIFT", "RSHIFT")
-    val digs = '0' until '9' toSet
-    var signals = Map[String, () => Int]()
+    var signals = Map[String, String]()
+    var values = mutable.Map[String, Int]()
 
-    private def defaultOperation(): () => Int = () => -1
-
-    private def noOperationFunction(value: Int): () => Int = () => value
-
-    private def andOperationOnWires(w1: String, w2: String): () => Int =
-        () => ((wireFunc(w1)() & wireFunc(w2)()) << 16) >> 16
-
-    private def orOperationOnWires(w1: String, w2: String): () => Int =
-        () => ((wireFunc(w1)() | wireFunc(w2)()) << 16) >> 16
-
-    private def lShiftOnWires(w1: String, shiftFactor: Int): () => Int =
-        () => ((wireFunc(w1)() << shiftFactor) << 16) >> 16
-
-    private def rShiftOnWires(w1: String, shiftFactor: Int): () => Int =
-        () => ((wireFunc(w1)() >> shiftFactor) << 16) >> 16
-
-    private def notOperationOnWires(wire: String): () => Int =
-        () =>  ~wireFunc(wire)() & 65535
-
-    private def wireFunc(wire: String): () => Int = signals.getOrElse(wire, defaultOperation())
-
-    private def connect(string: String) = {
-        val parts = string.split(" -> ")
-        if (parts(0).startsWith("NOT")) {
-            val operations = parts(0).split(" ")
-            signals = signals + (parts(1) -> notOperationOnWires(operations(1)))
-        }
-        else {
-            val operations = parts(0).split(" ")
-            operations(1) match {
-                case "AND"    => signals = signals + (parts(1) -> andOperationOnWires(operations(0), operations(2)))
-                case "OR"     => signals = signals + (parts(1) -> orOperationOnWires(operations(0), operations(2)))
-                case "LSHIFT" => signals = signals + (parts(1) -> lShiftOnWires(operations(0), operations(2) toInt))
-                case "RSHIFT" => signals = signals + (parts(1) -> rShiftOnWires(operations(0), operations(2) toInt))
-            }
-        }
-    }
-
-    private def addSource(string: String) = {
-        val parts = string.split(" -> ")
-        if (digs.exists(c => parts(0).contains(c))) signals = signals + (parts(1) -> noOperationFunction(parts(0).toInt))
-        else signals = signals + (parts(1) -> signals.getOrElse(parts(0), defaultOperation()))
+    private def parseArg(arg: String, index:Int): Int = {
+        if(arg.matches("[\\d]+")) arg.toInt else signalOn(arg)
     }
 
     def input(string: String) = {
-        if (!ops.exists(op => string.contains(op))) addSource(string)
-        else connect(string)
+        val parts = string.split(" -> ")
+        signals = signals + (parts(1) -> parts(0))
     }
 
-    def signalOn(wire: String): Int = wireFunc(wire)()
+    private def signalOn(wire: String, index: Int): Int = {
+        def analyseExpr(expr: String): Int = {
+            if(expr.contains("AND")) evalExpr(expr, "AND", (fArg: String, sArg: String) => parseArg(fArg, index) & parseArg(sArg, index))
+            else if(expr.contains("OR")) evalExpr(expr, "OR", (fArg: String, sArg: String) => parseArg(fArg, index) | parseArg(sArg, index))
+            else if(expr.contains("LSHIFT")) evalExpr(expr, "LSHIFT", (fArg: String, sArg: String) => parseArg(fArg, index) << parseArg(sArg, index))
+            else if(expr.contains("RSHIFT")) evalExpr(expr, "RSHIFT", (fArg: String, sArg: String) => parseArg(fArg, index) >> parseArg(sArg, index))
+            else if(expr.contains("NOT")) ~parseArg(expr.substring(4), index)
+            else parseArg(expr, index)
+        }
+        def evalExpr(expr: String, op: String, func: (String, String) => Int): Int = {
+            val exprs = expr.split(" " + op + " ")
+            func(exprs(0), exprs(1))
+        }
+        signals.get(wire) match {
+            case Some(expr) => values.getOrElseUpdate(wire, analyseExpr(expr) & 65535)
+            case None => -1
+        }
+
+    }
+
+    def signalOn(wire: String): Int = {
+        signalOn(wire, 0)
+    }
 }
 
 object WiresConnectionManager {
