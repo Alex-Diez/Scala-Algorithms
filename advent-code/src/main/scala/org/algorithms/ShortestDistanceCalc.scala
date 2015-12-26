@@ -1,67 +1,49 @@
 package org.algorithms
 
 import scala.collection.mutable
+import scala.io.Source._
 
 class ShortestDistanceCalc {
-    val g = new Graph
-    def distance():Int = {
-        new ShortestPath(g).edges().map[Int](e => e.weight).sum
+    val paths = mutable.Map[String, mutable.ListBuffer[String]]()
+    val distances = mutable.Map[String, Int]()
+
+    def add(source: String) = {
+        val data = source.split(" to | = ")
+        updatePath(data(0), data(1))
+        updatePath(data(1), data(0))
+        val dist = data(2).toInt
+        updateDist(data(0),data(1), dist)
+        updateDist(data(1),data(0), dist)
     }
 
-    def add(datum: String):Unit = {
-        val data = datum.split(" ")
-        g.addEdge(new Edge(data(0), data(2), data(4).toInt))
+    private def updateDist(v: String, w: String, dist: Int) = {
+        distances += (v + " -> " + w -> dist)
     }
 
-    class Edge(val v: String, val w: String, val weight: Int) extends Ordered[Edge] {
-        override def compare(that: Edge): Int = weight - that.weight
+    private def updatePath(v: String, w: String) = {
+        paths.getOrElseUpdate(v, mutable.ListBuffer()) += w
     }
 
-    class Graph {
-        val adjacent = mutable.Map[String, List[Edge]]()
-        val edges = mutable.ArrayBuffer[Edge]()
-
-        def addEdge(edge: Edge) = {
-            updateVertex(edge.v, edge)
-            updateVertex(edge.w, edge)
-            edges += edge
-        }
-
-        private def updateVertex(v: String, edge: Edge) = {
-            val vList = adjacent.getOrElse(v, List())
-            adjacent.update(v, edge :: vList)
-        }
-    }
-
-    class ShortestPath(private val g: Graph) {
-        val queue = new mutable.PriorityQueue[Edge]()
-        val mst = new mutable.Queue[Edge]()
-        queue ++= g.edges
-        val marked = mutable.Map[String, Boolean]()
-        visit(g, g.adjacent.iterator.next._1)
-
-        while (queue.nonEmpty && mst.size < g.adjacent.size - 1) {
-            val e = queue.dequeue()
-            val v = e.v
-            val w = e.w
-            if (!marked.getOrElseUpdate(v, false) || !marked.getOrElseUpdate(w, false)) {
-                mst.enqueue(e)
+    def distance(): Int = {
+        val vs = paths.keysIterator
+        val queue = mutable.PriorityQueue[Int]()
+        for (v <- vs) {
+            var dist = 0
+            for (w <- paths(v)) {
+                dist += distances(v + " -> " + w)
             }
-            if (!marked(v)) visit(g, v)
-            if (!marked(w)) visit(g, w)
+            queue.enqueue(dist)
         }
+        queue.reverseIterator.next
+    }
 
-        def edges():Iterator[Edge] = {
-            mst.iterator
-        }
+}
 
-        private def visit(g: Graph, v: String) = {
-            marked.update(v, true)
-            for (e <- g.adjacent(v)) {
-                if(!marked.getOrElseUpdate(e.w, false)) {
-                    queue += e
-                }
-            }
-        }
+object ShortestDistanceCalc {
+
+    def main(args: Array[String]) = {
+        val sdc = new ShortestDistanceCalc
+        fromFile("advent-code/src/main/resources/distances").getLines().foreach(l => sdc.add(l))
+        println(sdc.distance())
     }
 }
