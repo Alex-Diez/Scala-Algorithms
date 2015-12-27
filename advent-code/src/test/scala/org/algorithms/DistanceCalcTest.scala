@@ -2,19 +2,14 @@ package org.algorithms
 
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-class ShortestDistanceTest extends FunSuite with Matchers with BeforeAndAfter {
+import scala.io.Source._
+
+class DistanceCalcTest extends FunSuite with Matchers with BeforeAndAfter {
 
     var sdc = new DistanceCalc
 
     before {
         sdc = new DistanceCalc
-    }
-
-    test("calculate distance a -> b -> c") {
-        sdc.add("a to b = 10")
-        sdc.add("b to c = 20")
-
-        sdc.shortestDistance() shouldBe 30
     }
 
     test("calculate shortest path a -> d") {
@@ -26,11 +21,25 @@ class ShortestDistanceTest extends FunSuite with Matchers with BeforeAndAfter {
         sdc.shortestDistance() shouldBe 25
     }
 
-    test("distance between cities") {
+    test("shortest distance between cities") {
         sdc.add("London to Dublin = 464")
         sdc.add("London to Belfast = 518")
         sdc.add("Dublin to Belfast = 141")
 
         sdc.shortestDistance() shouldBe 605
+    }
+
+    test("longest distance between cities") {
+        sdc.add("London to Dublin = 464")
+        sdc.add("London to Belfast = 518")
+        sdc.add("Dublin to Belfast = 141")
+
+        sdc.longestDistance() shouldBe 982
+    }
+
+    test("for given data") {
+        fromFile("advent-code/src/main/resources/distances").getLines().foreach(l => sdc.add(l))
+
+        sdc.longestDistance() shouldBe 804
     }
 }

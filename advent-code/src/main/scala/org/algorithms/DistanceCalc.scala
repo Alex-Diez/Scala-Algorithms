@@ -4,7 +4,7 @@ import scala.collection.mutable
 import scala.io.Source._
 
 class DistanceCalc {
-    val paths = mutable.Map[String, mutable.PriorityQueue[Neighbor]]()
+    val paths = mutable.Map[String, mutable.ListBuffer[Neighbor]]()
 
     def add(source: String) = {
         val data = source.split(" to | = ")
@@ -14,32 +14,49 @@ class DistanceCalc {
     }
 
     private def updatePath(v: String, w: String, dist: Int) = {
-        paths.getOrElseUpdate(v, mutable.PriorityQueue()) += new Neighbor(w, dist)
+        paths.getOrElseUpdate(v, mutable.ListBuffer()) += new Neighbor(w, dist)
     }
 
     def shortestDistance(): Int = {
         def nearestNeighborsDist(v: String, marked: Map[String, Boolean]): Int = {
-            if (marked.size < paths.size) {
-                val neighbors = paths(v).iterator
-                var n = neighbors.next
+            if(marked.size < paths.size) {
+                val neighbors = (new mutable.PriorityQueue[Neighbor]() ++ paths(v)).reverse
+                var n = neighbors.dequeue
                 while(marked.getOrElse(n.name, false)) {
-                    n = neighbors.next
+                    n = neighbors.dequeue
                 }
-                val r = n.dist + nearestNeighborsDist(n.name, marked + (n.name -> true))
-                r
+                n.dist + nearestNeighborsDist(n.name, marked + (n.name -> true))
             }
             else 0
         }
         val allDistances = new mutable.PriorityQueue[Int]()
-        for (v <- paths.keysIterator) {
-            val dist = nearestNeighborsDist(v, Map(v -> true))
-            allDistances += dist
+        for(v <- paths.keysIterator) {
+            allDistances += nearestNeighborsDist(v, Map(v -> true))
         }
-        allDistances.reverse.head
+        allDistances.reverse.dequeue
+    }
+
+    def longestDistance(): Int = {
+        def farthestNeighborsDist(v: String, marked: Map[String, Boolean]): Int = {
+            if(marked.size < paths.size) {
+                val neighbors = new mutable.PriorityQueue[Neighbor]() ++ paths(v)
+                var n = neighbors.dequeue
+                while(marked.getOrElse(n.name, false)) {
+                    n = neighbors.dequeue
+                }
+                n.dist + farthestNeighborsDist(n.name, marked + (n.name -> true))
+            }
+            else 0
+        }
+        val allDistances = new mutable.PriorityQueue[Int]()
+        for(v <- paths.keysIterator) {
+            allDistances += farthestNeighborsDist(v, Map(v -> true))
+        }
+        allDistances.dequeue
     }
 
     class Neighbor(val name: String, val dist: Int) extends Ordered[Neighbor] {
-        override def compare(that: Neighbor): Int = that.dist - dist
+        override def compare(that: Neighbor): Int = dist - that.dist
     }
 }
 
@@ -49,5 +66,6 @@ object DistanceCalc {
         val sdc = new DistanceCalc
         fromFile("advent-code/src/main/resources/distances").getLines().foreach(l => sdc.add(l))
         println(sdc.shortestDistance())
+        println(sdc.longestDistance())
     }
 }
