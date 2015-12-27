@@ -27,8 +27,7 @@ object SequenceGenerator {
 
     def main(args: Array[String]) = {
         val sg =  new SequenceGenerator
-        val generate: String = sg.generate("3113322113", 40)
-        println(generate)
-        println(generate.length)
+        println(sg.generate("3113322113", 40).length)
+        println(sg.generate("3113322113", 50).length)
     }
 }
